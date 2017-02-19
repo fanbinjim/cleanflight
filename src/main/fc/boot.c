@@ -277,15 +277,18 @@ void buttonsHandleColdBootButtonPresses(void)
 
 #endif
 
+// 所有初始化
 void init(void)
 {
+    // PWM 参数
     drv_pwm_config_t pwm_params;
-
+    // printf 支持初始化
     printfSupportInit();
-
+    // 初始化EEPROM
     initEEPROM();
-
+    // 大白话 保证EEPROM里面含有有效数据
     ensureEEPROMContainsValidData();
+    // 读取EEPROM
     readEEPROM();
 
     systemState |= SYSTEM_STATE_CONFIG_LOADED;
@@ -838,8 +841,9 @@ void configureScheduler(void)
 }
 
 int main(void) {
+    // 初始化硬件
     init();
-
+    // 设置时序
 	configureScheduler();
 
     while (true) {

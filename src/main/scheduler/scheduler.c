@@ -198,9 +198,11 @@ void schedulerInit(void)
 void scheduler(void)
 {
     // Cache currentTime
+    // 读取当前时间，单位us
     currentTime = micros();
 
     // Check for realtime tasks
+    // 检查实时tasks
     uint32_t timeToNextRealtimeTask = UINT32_MAX;
     for (const cfTask_t *task = queueFirst(); task != NULL && task->staticPriority >= TASK_PRIORITY_REALTIME; task = queueNext()) {
         const uint32_t nextExecuteAt = task->lastExecutedAt + task->desiredPeriod;
@@ -211,12 +213,15 @@ void scheduler(void)
             timeToNextRealtimeTask = MIN(timeToNextRealtimeTask, newTimeInterval);
         }
     }
+    // 是否超时
     const bool outsideRealtimeGuardInterval = (timeToNextRealtimeTask > realtimeGuardInterval);
 
     // The task to be invoked
     cfTask_t *selectedTask = NULL;
     uint16_t selectedTaskDynamicPriority = 0;
 
+    
+    // 更新 task 动态优先级
     // Update task dynamic priorities
     uint16_t waitingTasks = 0;
     for (cfTask_t *task = queueFirst(); task != NULL; task = queueNext()) {

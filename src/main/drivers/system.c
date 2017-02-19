@@ -45,6 +45,7 @@ static void cycleCounterInit(void)
 {
     RCC_ClocksTypeDef clocks;
     RCC_GetClocksFreq(&clocks);
+    // usTicks 是单片机主频
     usTicks = clocks.SYSCLK_Frequency / 1000000;
 }
 
@@ -55,9 +56,13 @@ void SysTick_Handler(void)
 }
 
 // Return system uptime in microseconds (rollover in 70minutes)
+// 返回系统时间 单位微妙，70分钟左右后溢出。
+// 这个函数应该是在整毫秒的时候跳出，sysTickUptime是1ms增加一次在SysTick_Handler里更新 这写反了。。
+// 是假如执行这个函数的时候 sysTickUptime ++ 跳变了，则重新执行一下，不然这里的ms和cycle_cnt不是同一时刻的差太多了。
 uint32_t micros(void)
 {
     register uint32_t ms, cycle_cnt;
+    
     do {
         ms = sysTickUptime;
         cycle_cnt = SysTick->VAL;
@@ -67,11 +72,12 @@ uint32_t micros(void)
          * interrupt to be delivered before we can recheck sysTickUptime:
          */
         asm volatile("\tnop\n");
-    } while (ms != sysTickUptime);
+    } while (ms != sysTickUptime);  // 如果这个时候sysTickUptime 变化了，则重新读取一下
     return (ms * 1000) + (usTicks * 1000 - cycle_cnt) / usTicks;
 }
 
 // Return system uptime in milliseconds (rollover in 49 days)
+// 返回系统时间 单位毫秒
 uint32_t millis(void)
 {
     return sysTickUptime;
