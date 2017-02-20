@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Cleanflight.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#define UNIT_TEST
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -764,6 +764,8 @@ void init(void)
 
     systemState |= SYSTEM_STATE_READY;
 }
+// 初始化结束
+
 
 #ifdef SOFTSERIAL_LOOPBACK
 void processLoopback(void) {
