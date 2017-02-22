@@ -295,6 +295,7 @@ void init(void)
 
 #ifdef STM32F303
     // start fpu
+    // 开启FPU
     SCB->CPACR = (0x3 << (10*2)) | (0x3 << (11*2));
 #endif
 
@@ -308,16 +309,20 @@ void init(void)
 #endif
     i2cSetOverclock(systemConfig()->i2c_highspeed);
 
+    // 包括中断，RCC，Systick的初始化
     systemInit();
 
 #ifdef USE_HARDWARE_REVISION_DETECTION
+    // 检测硬件版本
     detectHardwareRevision();
 #endif
 
     // Latch active features to be used for feature() in the remainder of init().
+    // 先把功能锁定，然后在后面的程序里，用feature()函数启用
     latchActiveFeatures();
 
     // initialize IO (needed for all IO operations)
+    // 初始化IO
     IOInitGlobal();
 
     debugMode = debugConfig()->debug_mode;
@@ -326,6 +331,7 @@ void init(void)
     EXTIInit();
 #endif
 
+// 可选择的LED初始化
 #ifdef ALIENFLIGHTF3
     if (hardwareRevision == AFF3_REV_1) {
         ledInit(false);
@@ -336,6 +342,7 @@ void init(void)
     ledInit(false);
 #endif
 
+// 蜂鸣器初始化
 #ifdef BEEPER
     beeperConfig_t beeperConfig = {
         .gpioPeripheral = BEEP_PERIPHERAL,
@@ -360,6 +367,7 @@ void init(void)
     beeperInit(&beeperConfig);
 #endif
 
+// 按钮初始化
 #ifdef BUTTONS
     buttonsInit();
 
@@ -382,6 +390,7 @@ void init(void)
     }
 #endif
 
+// 初始化图传
 #ifdef VTX
     // This must be done early to ensure that the VTX does not power up.  We do not fully initialise the VTX at this stage
     // because it takes some time - we don't want to delay other time critical initialisation.
