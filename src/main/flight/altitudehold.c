@@ -316,6 +316,7 @@ void calculateEstimatedAltitude(uint32_t currentTime)
 #ifdef BARO
     vel = vel * barometerConfig()->baro_cf_vel + baroVel * (1.0f - barometerConfig()->baro_cf_vel);
 #endif
+    // 四舍五入
     vel_tmp = lrintf(vel);
 
     // set vario

@@ -227,6 +227,7 @@ static float invSqrt(float x)
 
 static bool imuUseFastGains(void)
 {
+    // 没有ARMED并且启动时间在20s以内，使用FastGains
     return !ARMING_FLAG(ARMED) && millis() < 20000;
 }
 
@@ -251,17 +252,18 @@ static void imuMahonyAHRSupdate(float dt, float gx, float gy, float gz,
     float ex = 0, ey = 0, ez = 0;
     float qa, qb, qc;
 
-    // Calculate general spin rate (rad/s)
+    // Calculate general spin rate (rad/s)      // 计算旋转速度
     float spin_rate = sqrtf(sq(gx) + sq(gy) + sq(gz));
 
     // Use raw heading error (from GPS or whatever else)
+    // For fix-wing aircraft
     if (useYaw) {
         while (yawError >  M_PIf) yawError -= (2.0f * M_PIf);
         while (yawError < -M_PIf) yawError += (2.0f * M_PIf);
 
         ez += sin_approx(yawError / 2.0f);
     }
-
+    
     // Use measured magnetic field vector
     recipNorm = sq(mx) + sq(my) + sq(mz);
     if (useMag && recipNorm > 0.01f) {
